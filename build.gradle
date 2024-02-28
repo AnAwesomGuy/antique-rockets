@@ -1,0 +1,87 @@
+plugins {
+	id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
+	id 'fabric-loom' version '1.5-SNAPSHOT'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+
+	doLast {
+		fileTree(dir: outputs.files.asPath, include: '**/*.json').each {
+			it.text = JsonOutput.toJson(new JsonSlurper().parse(it))
+		}
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}"}
+	}
+}
+
+publishMods {
+	file = remapJar.archiveFile
+	modLoaders.add('fabric')
+	modLoaders.add('quilt')
+	displayName = "Antique Rockets $project.version"
+	type = STABLE
+	changelog = file('changelog.md').text
+
+	curseforge {
+		projectId = '980597'
+		accessToken = providers.environmentVariable('$CURSEFORGE_TOKEN')
+		minecraftVersionRange {
+			start = '1.14'
+			end = 'latest'
+		}
+	}
+
+	modrinth {
+		projectId = 'MDOUcFud'
+		accessToken = providers.environmentVariable('$MODRINTH_TOKEN')
+		minecraftVersionRange {
+			start = '1.14'
+			end = 'latest'
+			includeSnapshots = true
+		}
+	}
+
+	github {
+		accessToken = providers.environmentVariable('$GITHUB_TOKEN')
+		repository = 'AnAwesomGuy/antique-rockets'
+		tagName = "release/${project.version}"
+		commitish = 'main'
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "net.anawesomguy.antique_rockets.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"FireworkRocketRecipeMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
