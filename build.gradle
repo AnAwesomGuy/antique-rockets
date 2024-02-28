@@ -82,6 +82,6 @@ publishMods {
 		accessToken = providers.environmentVariable('$GITHUB_TOKEN')
 		repository = 'AnAwesomGuy/antique-rockets'
 		tagName = "release/${project.version}"
-		commitish = 'main'
+		commitish = 'master'
 	}
 }
